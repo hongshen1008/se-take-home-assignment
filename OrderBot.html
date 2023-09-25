@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<style type="text/css">
+		.gridContainer{
+			display: grid;
+    		grid-template-columns: 3fr 1fr; /* 3:1 from left to right */
+    		height: 100%;
+		}
+
+		.menuCard{
+			grid-column: 1;
+			display: flex;
+		}
+
+		.menuCard #cardItem{
+			flex: 1; /* Allows items to take up equal space */
+		    padding: 10px;
+		    text-align: center;
+		}
+
+		.menuCard #card_header-text{
+			border: 1px solid #dddddd;
+		}
+
+		.status{
+			grid-column: 2;
+			border:1px solid #dddddd;
+			height: 180%;
+		}
+
+		.status #pending{
+			height: 40%;
+		}
+
+		.status #complete{
+			height: 50%;
+		}
+
+		button{
+			border-radius: 10px;
+			cursor: pointer;
+			background-color: lightgoldenrodyellow;
+			padding: 10px 20px;
+			margin: 2px;
+			width: 45%;
+			border: 1px solid black;
+		}
+
+		button:hover{
+			background-color: lightyellow;
+		}
+
+		#incBot{
+			width:20%;
+			margin-left: 25%;
+		}
+
+		#decBot{
+			width:20%;
+		}
+	</style>
+</head>
+<body>
+	<h1>Menu</h1>
+	<div class = "gridContainer">
+		<div class = "menuCard">
+			<div id="cardItem">
+				<img src="https://www.mcdelivery.com.my/my/static/1694642475279/assets/60/products/1028.png?" alt="Mc Chicken"/>
+				<div id="card_header-text">
+		            <h3 class="card_title">Mc Chicken</h3>
+		            <span class="card_status">RM 9.43</span><br><br>
+		            <button id = "btnNormOrd" onclick= "normalOrder()">New Normal Order</button>
+					<button id = "btnVipOrd" onclick="vipOrd()">New VIP Order</button>
+		        </div>
+	        </div>
+	        <div id=cardItem>
+				<img src="https://www.mcdelivery.com.my/my/static/1694642475279/assets/60/products/1078.png?" alt="Spicy Chicken McDeluxe"/>
+				<div id="card_header-text">
+	                <h3 class="card_title">Spicy Chicken McDeluxe</h3>
+	                <span class="card_status">RM 13.54</span><br><br>
+	                <button id = "btnNormOrd" onclick= "normalOrder()">New Normal Order</button>
+					<button id = "btnVipOrd" onclick="vipOrd()">New VIP Order</button>
+	            </div>
+	        </div>
+	        <div id=cardItem>
+				<img src="https://www.mcdelivery.com.my/my/static/1694642475279/assets/60/products/1002.png?" alt="Filet-O-Fish"/>
+				<div id="card_header-text">
+	                <h3 class="card_title">Filet-O-Fish</h3>
+	                <span class="card_status">RM 9.95</span><br><br>
+	                <button id = "btnNormOrd" onclick= "normalOrder()">New Normal Order</button>
+					<button id = "btnVipOrd" onclick="vipOrd()">New VIP Order</button>
+	            </div>
+	        </div>
+	    </div>
+	    <div class = "status">
+	    	<div id="pending">
+	    		<h3>PENDING</h3>
+	    		<p id=pendingOrd></p>
+	    	</div>
+	    	<div id="complete">
+	    		<h3>COMPLETE</h3>
+	    		<p id=completeOrd></p>
+	    	</div>
+	    </div>
+	</div>
+
+
+	<button id = "incBot" onclick="incBot()">+ Bot</button>
+	<button id = "decBot" onclick="decBot()">- Bot</button>
+
+
+	<script>
+		class QElement {
+		    constructor(element, priority)
+		    {
+		        this.element = element;
+		        this.priority = priority;
+		    }
+		}
+		 
+		// PriorityQueue class
+		class PriorityQueue {
+		 
+		    constructor()
+		    {
+		        this.qItems = []; // array to store elements in the priority queue
+		        this.dqItems = []; // array to store elements that being dequeue
+		    }
+		 
+		    // functions to be implemented
+		    enqueue(element, priority)
+			{
+			    // creating object from queue element
+			    var qElement = new QElement(element, priority);
+			    var contain = false;
+			 
+			    // iterating through the entire
+			    // item array to add element at the
+			    // correct location of the Queue
+			    for (var i = 0; i < this.qItems.length; i++) {
+			        if (this.qItems[i].priority > qElement.priority) {
+			            // Once the correct location is found it is
+			            // enqueued
+			            this.qItems.splice(i, 0, qElement); //at position i, remove 0 element, add qElement
+			            contain = true;
+			            break;
+			        }
+			    }
+			 
+			    // if the element has lower priority, it is added at the end of the queue
+			    if (!contain) {
+			        this.qItems.push(qElement);
+			    }
+			}
+
+
+			// dequeue method to remove
+			// element from the queue
+			dequeue()
+			{
+			    if (this.isEmpty()){
+			        return "Underflow";
+			    }
+
+			    let dqItem = this.qItems.shift(); //dequeue the element
+			    this.dqItems.push(dqItem); //push the dequeue item into deItems array
+			    return dqItem; //return the dequeue item
+			}
+
+			front()
+			{
+			    // returns the highest priority element in the Priority queue without removing it.
+			    if (this.isEmpty())
+			        return "No orders";
+			    return this.qItems[0];
+			}
+
+			rear()
+			{
+			    // returns the lowest priority element of the queue
+			    if (this.isEmpty())
+			        return "No orders";
+			    return this.qItems[this.qItems.length - 1];
+			}
+
+			isEmpty()
+			{
+			    // return true if the queue is empty.
+			    return this.qItems.length == 0;
+			}
+
+			isDqArrEmpty(){
+				return this.dqItems.length == 0;
+			}
+
+			// prints all the elements of the priority queue
+			printPQueue()
+			{
+			    var str = "";
+			    for (var i = 0; i < this.qItems.length; i++){
+			        str += this.qItems[i].element + " ";
+			    }
+			    return str;
+			}
+
+			// prints all elements that have been dequeue
+			printDQueueItems()
+			{
+			    var str = "";
+			    for (var i = 0; i < this.dqItems.length; i++){
+			        str += this.dqItems[i].element + " ";
+			    }
+			    return str;
+			}
+
+			clearDQueueItems()
+			{
+				return this.dqItems.shift();
+			}
+		}
+
+		var orderId = 0;
+		var botIdx = 0;
+		var workerBots = []; // array of objects
+		var botTimeouts = {};
+		var proccessingFlag = 0; // 0 for idle, 1 for processing
+
+		var priorityQueue = new PriorityQueue();
+		
+		function processPendingItem(workerBot) {
+			try{
+				if (!priorityQueue.isEmpty() && proccessingFlag === 1) {
+			        // Check if the specific bot is in the activeBots queue
+		            const timeoutId = setTimeout(() => {
+			            let dqElement = priorityQueue.dequeue().element; // dequeue element from the queue
+			            // console.log("is Queue Empty: ", priorityQueue.isEmpty());
+			            console.log('Bot ' + workerBot.id + ' processing item ' + dqElement);
+			            document.getElementById("pendingOrd").textContent = priorityQueue.printPQueue();
+			            document.getElementById("completeOrd").textContent = priorityQueue.printDQueueItems();
+
+			            // Continue processing for the same worker bot
+			            processPendingItem(workerBot);
+			        }, 10000);
+
+			        botTimeouts[workerBot.id] = timeoutId;
+			    } 
+			    else 
+			    {
+			    	proccessingFlag = 0;
+			    }
+			}
+			catch(err){
+				console.error("Unexpected behaviour when processing pending items: ", err); // log error
+			}
+			finally{
+				document.getElementById("pendingOrd").textContent = priorityQueue.printPQueue();
+			}
+		}
+
+		function processCompletedItem() {
+			try{
+				if (!priorityQueue.isDqArrEmpty() || proccessingFlag === 1) {
+					// remove completed elements from the "complete" section every 20 seconds
+			        setTimeout(() => {
+			            priorityQueue.clearDQueueItems();
+			            document.getElementById("completeOrd").textContent = priorityQueue.printDQueueItems();
+			            processCompletedItem();
+			        }, 20000);
+			    }
+			    else
+			    {
+			    	return;
+			    }
+			}
+		    catch(err){
+		    	console.error("Unexpected behaviour when processing completed items: ", err); 
+		    }
+		    finally{
+		    	document.getElementById("completeOrd").textContent = priorityQueue.printDQueueItems();
+		    }
+		}
+
+		function incBot() {	
+		    botIdx++;
+		    console.log("number of bot:", botIdx);
+		    
+		    // Create a new worker bot and add it to the pool
+		    const newBot = {id: botIdx};
+		    workerBots.push(newBot);
+		    proccessingFlag = 1;
+
+		    if (!priorityQueue.isEmpty())
+		    {
+		    	// Start processing for the new bot
+		    	processPendingItem(newBot);
+		    	processCompletedItem();
+		    }
+		}
+
+		function decBot() {
+		    try{
+		    	// Check if there is a worker bot
+		    	if (workerBots.length > 0) {
+			        // Remove the most recent bot from the pool
+			        const removedBot = workerBots.pop();
+			        botIdx--;
+			        console.log("number of bot", botIdx);
+
+			        // Clear the timeout for the most recent bot (if it exists)
+			        const timeoutId = botTimeouts[removedBot.id];
+			        if (timeoutId) {
+			            clearTimeout(timeoutId);
+			        }
+			    }
+		    }
+		    catch(err){
+		    	console.error("Error decreasing bot: ", err);
+		    }   
+		}
+
+		// assign priority to normal order
+		function normalOrder()
+		{
+			orderId += 1;
+			// console.log("normalOrd:", orderId);
+			const priority = 2;
+
+			addToPending(orderId, priority);
+		}
+
+		// assign priority to vip order
+		function vipOrd()
+		{
+			orderId += 1;
+			// console.log("vipOrd:", orderId);
+			const priority = 1;
+
+			addToPending(orderId, priority);
+		}
+
+		//display the orders in pending section
+		function addToPending(orderId, priority) 
+		{
+			try{
+				priorityQueue.enqueue(orderId, priority);
+				console.log("Items in queue: ", priorityQueue.printPQueue());
+				document.getElementById("pendingOrd").textContent = priorityQueue.printPQueue();
+
+				// check if the bot is idle. A bot is idle when the queue is empty.
+				if (proccessingFlag === 0 && workerBots.length > 0 && !priorityQueue.isEmpty())
+				{
+					proccessingFlag = 1;
+	        		workerBots.forEach(processPendingItem);
+	        		processCompletedItem();
+				}
+			}
+			catch(err){
+				console.error("Error adding order to pending:", err);
+			}
+		}
+	</script>
+</body>
+</html>
