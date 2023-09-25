@@ -226,6 +226,7 @@
 		var workerBots = []; // array of objects
 		var botTimeouts = {};
 		var proccessingFlag = 0; // 0 for idle, 1 for processing
+		var isProcessCompletedItem = false;
 
 		var priorityQueue = new PriorityQueue();
 		
@@ -263,6 +264,7 @@
 			try{
 				if (!priorityQueue.isDqArrEmpty() || proccessingFlag === 1) {
 					// remove completed elements from the "complete" section every 20 seconds
+					isProcessCompletedItem = true;
 			        setTimeout(() => {
 			            priorityQueue.clearDQueueItems();
 			            document.getElementById("completeOrd").textContent = priorityQueue.printDQueueItems();
@@ -271,6 +273,7 @@
 			    }
 			    else
 			    {
+			    	isProcessCompletedItem = false;
 			    	return;
 			    }
 			}
@@ -295,7 +298,9 @@
 		    {
 		    	// Start processing for the new bot
 		    	processPendingItem(newBot);
-		    	processCompletedItem();
+		    	if(!isProcessCompletedItem){
+		    		processCompletedItem();
+		    	}
 		    }
 		}
 
@@ -353,13 +358,16 @@
 				{
 					proccessingFlag = 1;
 	        		workerBots.forEach(processPendingItem);
-	        		processCompletedItem();
+	        		if(!isProcessCompletedItem){
+			    		processCompletedItem();
+			    	}
 				}
 			}
 			catch(err){
 				console.error("Error adding order to pending:", err);
 			}
 		}
+
 	</script>
 </body>
 </html>
